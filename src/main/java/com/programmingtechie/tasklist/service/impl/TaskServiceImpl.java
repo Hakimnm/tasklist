@@ -27,13 +27,21 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    //@Transactional
-    @Cacheable(value = "TaskService::getById", key = "#task.id")
-    public Task create(Task task, Long userId) {
-        User user = userService.getById(userId);
-        task.setStatus(Status.TODO);
-        user.getTasks().add(task);
-        userService.update(user);
+    @Transactional
+    @Cacheable(
+            value = "TaskService::getById",
+            condition = "#task.id!=null",
+            key = "#task.id"
+    )
+    public Task create(
+            final Task task,
+            final Long userId
+    ) {
+        if (task.getStatus() == null) {
+            task.setStatus(Status.TODO);
+        }
+        taskRepository.save(task);
+        taskRepository.assignTask(userId, task.getId());
         return task;
     }
 
@@ -47,7 +55,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public List<Task> getAllByUser(Long id) {
-        return taskRepository.findAllByUserId(id);
+        var tasks= taskRepository.findAllByUserId(id);
+        return tasks;
     }
 
     @Override
@@ -71,8 +80,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @CacheEvict(value = "TaskService::getById", key = "#id")
-    public void taskImageUpload(Long taskId, TaskImage image) {
-        Task task = getById(taskId);
+    public void taskImageUpload(Long id, TaskImage image) {
+        Task task = getById(id);
         String fileName = imageService.upload(image);
         task.getImages().add(fileName);
         taskRepository.save(task);

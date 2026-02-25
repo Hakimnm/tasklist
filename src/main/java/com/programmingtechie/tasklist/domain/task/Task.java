@@ -1,5 +1,6 @@
 package com.programmingtechie.tasklist.domain.task;
 
+import com.programmingtechie.tasklist.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Data
 public class Task implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String description;
@@ -21,8 +22,13 @@ public class Task implements Serializable {
     private Status status;
     private LocalDateTime expirationDate;
 
-    @Column(name = "image")
-    @CollectionTable(name = "task_images")
     @ElementCollection
+    @CollectionTable(
+            name = "tasks_images",
+            joinColumns = @JoinColumn(name = "task_id")
+    )
+    @Column(name = "image")
     private List<String> images;
+
+
 }

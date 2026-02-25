@@ -21,6 +21,8 @@ ext {
     springdocversion = '3.0.1'
     preliquibaseversion = '2.0.0'
     minioversion = '8.6.0'
+    graphqlKickStartVersion='16.0.0'
+    graphqlExtendedScalarsVersion='24.0'
 }
 configurations {
     compileOnly {
@@ -48,6 +50,9 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}")
     implementation("jakarta.validation:jakarta.validation-api:${jakartavalidation}")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-graphql")
+    implementation("com.graphql-java-kickstart:graphql-java-kickstart:${graphqlKickStartVersion}")
+    implementation("com.graphql-java:graphql-java-extended-scalars:${graphqlExtendedScalarsVersion}")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("io.jsonwebtoken:jjwt-api:${jjwtversion}")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${jjwtversion}")

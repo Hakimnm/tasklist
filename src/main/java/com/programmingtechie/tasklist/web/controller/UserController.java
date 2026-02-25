@@ -13,6 +13,9 @@ import com.programmingtechie.tasklist.web.dto.validation.OnUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +33,11 @@ public class UserController {
     private final UserMapper userMapper;
     private final TaskMapper taskMapper;
 
+    @MutationMapping(name = "updateUser")
     @PreAuthorize("@customSecurtiyExpression.canAccessUser(#userDto.id)")
     @Operation(summary = "update user")
     @PutMapping
-    public UserDto update(@Validated(OnUpdate.class) @RequestBody UserDto userDto) {
+    public UserDto update(@Validated(OnUpdate.class) @RequestBody @Argument final UserDto userDto) {
         User user = userMapper.toEntity(userDto);
         User updatedUser = userService.update(user);
         return userMapper.toDto(updatedUser);
@@ -41,35 +45,41 @@ public class UserController {
 
     @Operation(summary = "user get by id")
     @GetMapping("/{id}")
+    @QueryMapping(name = "userById")
     @PreAuthorize("@customSecurtiyExpression.canAccessUser(#id)")
-    public UserDto getById(@PathVariable Long id) {
+    public UserDto getById(@PathVariable @Argument final Long id) {
         User user = userService.getById(id);
         return userMapper.toDto(user);
     }
 
     @PreAuthorize("@customSecurtiyExpression.canAccessUser(#id)")
+    @MutationMapping(name = "deleteUserById")
     @Operation(summary = "delete user")
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) {
+    public void deleteById(@PathVariable @Argument final Long id) {
         userService.delete(id);
     }
 
     @PreAuthorize("@customSecurtiyExpression.canAccessUser(#id)")
     @Operation(summary = "find task by userid")
-    @GetMapping("/{id}/tasks")
-    public List<TaskDto> getTasksByUserId(@PathVariable Long id) {
+   // @GetMapping("/{id}/tasks") @PathVariable
+    @QueryMapping(name = "tasksByUserId")
+    public List<TaskDto> getTasksByUserId( @Argument final Long id) {
         List<Task> tasks = taskService.getAllByUser(id);
-        return taskMapper.toDto(tasks);
+        return  taskMapper.toDto(tasks);
     }
 
-    @Operation(summary = "create task")
     @PostMapping("/{id}/tasks")
+    @MutationMapping(name = "createTask")
+    @Operation(summary = "Add task to user")
     @PreAuthorize("@customSecurtiyExpression.canAccessUser(#id)")
-    public TaskDto createTask(@PathVariable Long id, @Validated(OnCreate.class)
-    @RequestBody TaskDto taskDto) {
-        Task task = taskMapper.toEntity(taskDto);
+    public TaskDto createTask(@PathVariable @Argument final Long id, @Validated(OnCreate.class)
+    @RequestBody @Argument final TaskDto dto) {
+        Task task = taskMapper.toEntity(dto);
         Task createdTask = taskService.create(task, id);
         return taskMapper.toDto(createdTask);
 
     }
+
+
 }

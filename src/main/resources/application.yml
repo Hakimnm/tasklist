@@ -30,6 +30,9 @@ spring:
     enabled: true
     change-log: classpath:liquibase/db.changelog.yaml
     default-schema: tasklist
+  graphql:
+    graphiql:
+      enabled: true
 
 server:
   port: 8090
